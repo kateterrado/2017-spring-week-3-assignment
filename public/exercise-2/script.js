@@ -110,7 +110,18 @@ function drawTimeOfDay(arr,div){
 /*		Exercise 2 part 1:
 		With the selected range of the brush, update the crossfilter
 		and then update the userType and userGender pie charts
-*/	}
+*/
+
+var range = d3.event.selection.map(scaleX.invert);
+var newSel = crossfilter(arr)
+	.dimension(function(d) { return d.startTime.getHours() + d.startTime.getMinutes()/60; })
+	.filterRange(range);
+
+var selectedArr = newSel.top(Infinity);
+drawUserType(selectedArr, plot2);
+
+
+}
 
 }
 
@@ -143,26 +154,111 @@ function drawUserType(arr,div){
 	//Draw
 /*	Exercise 2 part 2: this part of the code does not account for the update and exit sets
 	Refractor this code to account for the update and exit sets
-*/	var slices = plot
+*/
+
+var slices = plot
 		.append('g').attr('class','pie-chart')
 		.attr('transform','translate('+w/2+','+h/2+')')
-		.selectAll('.slice')
-		.data( pie(tripsByUserType) )
+		.selectAll('pie-chart')
+		.data(pie(tripsByUserType))
 		.enter()
 		.append('g').attr('class','slice');
+
 	slices
 		.append('path')
 		.attr('d',arc)
 		.style('fill',function(d,i){
-			return i===0?'#03afeb':null
+			return i===1?'#03afeb':null
 		});
+
 	slices
 		.append('text')
+		.merge(slices)
 		.text(function(d){return d.data.key})
 		.attr('transform',function(d){
 			var angle = (d.startAngle+d.endAngle)*180/Math.PI/2 - 90;
 			return 'rotate('+angle+')translate('+((Math.min(w,h)/2)+20)+')';
-		});
+		})
+
+		slices.exit().remove('pie-chart');
+
+
+// function update(data) {
+//
+// var newPie = g.selectAll('newPie')
+// 	.data(pie(tripsByUserType));
+//
+// newPie.attr('class', 'update');
+//
+// newPie.enter().append('newPie')
+// 	.attr('class', 'enter')
+// 	.attr('transform','translate('+w/2+','+h/2+')')
+// 	.append('g').attr('class','slice')
+//
+// 	.append('path')
+// 	.attr('d',arc)
+// 	.style('fill',function(d,i){
+// 		return i===1?'#03afeb':null
+// 	});
+//
+// slices
+// 	.append('text')
+// 	.merge(slices)
+// 	.text(function(d){return d.data.key})
+// 	.attr('transform',function(d){
+// 		var angle = (d.startAngle+d.endAngle)*180/Math.PI/2 - 90;
+// 		return 'rotate('+angle+')translate('+((Math.min(w,h)/2)+20)+')';
+// 	})
+//
+// 	.merge(newPie);
+//
+// 	newPie.exit().remove();
+//
+//
+// }
+//
+// update(drawUserType);
+
+
+
+
+// var update = plot2.selectAll('.slice')
+// 	.data(pie(tripsByUserType));
+//
+// 	update.exit()
+// 				.remove();
+//
+//
+// update.enter()
+// 	.append('g').attr('class','pie-chart')
+// 	.attr('transform','translate('+w/2+','+h/2+')')
+// 	.enter()
+// 	.append('g').attr('class','slice')
+// 	.append('path')
+// 	.append('text')
+// 	.merge(update)
+//
+// 	.attr('d',arc)
+// 	.attr('transform',function(d){
+// 		var angle = (d.startAngle+d.endAngle)*180/Math.PI/2 - 90;
+// 		return 'rotate('+angle+')translate('+((Math.min(w,h)/2)+20)+')'
+// 	.style('fill',function(d,i){
+// 	return i===0?'#03afeb':null
+// 	.text(function(d){return d.data.key})
+//
+//
+// 		});
+//
+//
+// });
+
+
+
+
+
+
+
+
 }
 
 function drawUserGender(arr,div){
